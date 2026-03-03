@@ -9,12 +9,6 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '24.x'
-  displayName: 'Install Node.js'
-
 
 stages:
 # 1) Smoke tests — rápidos para validar salud básica
