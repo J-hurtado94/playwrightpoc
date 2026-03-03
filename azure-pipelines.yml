@@ -28,7 +28,7 @@ stages:
       displayName: 'npm ci'
     - script: npx playwright install --with-deps
       displayName: 'Install Playwright browsers'
-    - script: npx playwright test --grep "@smoke"
+    - script: npx playwright test --grep @smoke
       displayName: 'Run Smoke Tests'
       env:
         CI: 'true'
@@ -52,7 +52,7 @@ stages:
       displayName: 'npm ci'
     - script: npx playwright install --with-deps
       displayName: 'Install Playwright browsers'
-    - script: npx playwright test --grep "@e2e"
+    - script: npx playwright test --grep @e2e
       displayName: 'Run E2E Tests'
       env:
         CI: 'true'
