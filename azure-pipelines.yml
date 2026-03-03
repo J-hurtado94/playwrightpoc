@@ -1,17 +1,9 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
 - none
 
-pool:
-  vmImage: ubuntu-latest
-
-
 stages:
-# 1) Smoke tests — rápidos para validar salud básica
+
+# 🔥 1. SMOKE TESTS
 - stage: smoke_tests
   displayName: 'Smoke Tests'
   jobs:
@@ -20,39 +12,93 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+
     - task: NodeTool@0
       inputs:
         versionSpec: '24.x'
       displayName: 'Install Node.js'
+
     - script: npm ci
       displayName: 'npm ci'
+
     - script: npx playwright install --with-deps
       displayName: 'Install Playwright browsers'
-    - script: npx playwright test --grep @smoke
+
+    # Ejecutar la suite Smoke usando SUITE=smoke
+    - script: |
+        export SUITE=smoke
+        npx playwright test
       displayName: 'Run Smoke Tests'
       env:
         CI: 'true'
 
-# 2) E2E tests — pruebas end-to-end completas
+    # Publicar resultados JUnit
+    - task: PublishTestResults@2
+      displayName: 'Publish Smoke Test Results'
+      inputs:
+        searchFolder: 'test-results/smoke'
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'smoke-junit.xml'
+        testRunTitle: 'Smoke Tests'
+      condition: succeededOrFailed()
+
+    # Publicar HTML report
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Smoke HTML Report'
+      inputs:
+        targetPath: 'playwright-report'
+        artifact: 'smoke-html-report'
+        publishLocation: 'pipeline'
+      condition: succeededOrFailed()
+
+
+
+# 🔥 2. E2E TESTS
 - stage: e2e_tests
   displayName: 'E2E Tests'
   dependsOn: smoke_tests
-  condition: succeeded() # explícito, pero es el default
+  condition: succeeded()
   jobs:
   - job: e2e
     displayName: 'Run E2E Tests'
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+
     - task: NodeTool@0
       inputs:
         versionSpec: '24.x'
       displayName: 'Install Node.js'
+
     - script: npm ci
       displayName: 'npm ci'
+
     - script: npx playwright install --with-deps
       displayName: 'Install Playwright browsers'
-    - script: npx playwright test --grep @e2e
+
+    # Ejecutar la suite E2E usando SUITE=e2e
+    - script: |
+        export SUITE=e2e
+        npx playwright test
       displayName: 'Run E2E Tests'
       env:
         CI: 'true'
+
+    # Publicar resultados JUnit
+    - task: PublishTestResults@2
+      displayName: 'Publish E2E Test Results'
+      inputs:
+        searchFolder: 'test-results/e2e'
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'e2e-junit.xml'
+        testRunTitle: 'E2E Tests'
+      condition: succeededOrFailed()
+
+    # Publicar HTML report
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish E2E HTML Report'
+      inputs:
+        targetPath: 'playwright-report'
+        artifact: 'e2e-html-report'
+        publishLocation: 'pipeline'
+      condition: succeededOrFailed()
