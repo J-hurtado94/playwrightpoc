@@ -27,7 +27,7 @@ stages:
     # Ejecutar la suite Smoke usando SUITE=smoke
     - script: |
         export SUITE=smoke
-        npx playwright test
+        npx playwright test @smoke
       displayName: 'Run Smoke Tests'
       env:
         CI: 'true'
@@ -40,15 +40,6 @@ stages:
         testResultsFormat: 'JUnit'
         testResultsFiles: 'smoke-junit.xml'
         testRunTitle: 'Smoke Tests'
-      condition: succeededOrFailed()
-
-    # Publicar HTML report
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish Smoke HTML Report'
-      inputs:
-        targetPath: 'playwright-report'
-        artifact: 'smoke-html-report'
-        publishLocation: 'pipeline'
       condition: succeededOrFailed()
 
 
@@ -79,7 +70,7 @@ stages:
     # Ejecutar la suite E2E usando SUITE=e2e
     - script: |
         export SUITE=e2e
-        npx playwright test
+        npx playwright test @e2e
       displayName: 'Run E2E Tests'
       env:
         CI: 'true'
@@ -94,11 +85,4 @@ stages:
         testRunTitle: 'E2E Tests'
       condition: succeededOrFailed()
 
-    # Publicar HTML report
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish E2E HTML Report'
-      inputs:
-        targetPath: 'playwright-report'
-        artifact: 'e2e-html-report'
-        publishLocation: 'pipeline'
-      condition: succeededOrFailed()
+   
